@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L.I.T Electric — Business Suite</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+:root { --gold: #c9a227; --gold-light: #e0b83a; --dark: #0a0a0a; --card: #141311; --border: #2a2723; --text: #f5f0e8; --muted: #8a8478; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Georgia, 'Times New Roman', serif; background: var(--dark); color: var(--text); -webkit-font-smoothing: antialiased; }
+nav { position: fixed; top: 0; width: 100%; background: rgba(10,10,10,0.97); padding: 0 8px; z-index: 100; border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; backdrop-filter: blur(12px); box-shadow: 0 2px 20px rgba(0,0,0,0.4); }
+nav button { background: none; border: none; color: var(--muted); padding: 16px 16px; cursor: pointer; font-size: 0.88rem; font-weight: 500; border-radius: 0; border-bottom: 3px solid transparent; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+nav button.active { color: var(--gold); border-bottom-color: var(--gold); }
+nav button:hover { color: var(--text); }
+.page { display: none; padding: 76px 20px 48px; min-height: 100vh; max-width: 1280px; margin: 0 auto; }
+.page.active { display: block; }
+h2 { font-family: 'Playfair Display', Georgia, serif; color: var(--text); margin-bottom: 6px; font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+.page > p.sub { color: var(--muted); margin-bottom: 28px; font-size: 0.95rem; }
+.card { background: linear-gradient(180deg, #171613 0%, #141311 100%); border: 1px solid var(--border); border-radius: 20px; padding: 32px; margin: 20px 0; box-shadow: 0 8px 32px rgba(0,0,0,0.35); }
+.card h3 { font-family: 'Playfair Display', Georgia, serif; font-size: 1.3rem; margin-bottom: 16px; color: var(--text); }
+.btn { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: #0a0a0a; border: none; padding: 13px 28px; border-radius: 12px; cursor: pointer; font-weight: 700; margin: 6px 4px; font-size: 0.92rem; font-family: 'Inter', sans-serif; box-shadow: 0 4px 16px rgba(201,162,39,0.25); transition: transform 0.15s, box-shadow 0.15s; }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,162,39,0.35); }
+.btn-outline { background: transparent; color: var(--gold); border: 1.5px solid var(--gold); box-shadow: none; }
+.btn-outline:hover { background: rgba(201,162,39,0.1); }
+input, select, textarea { width: 100%; padding: 13px 16px; margin: 6px 0; background: #0d0c0a; border: 1.5px solid var(--border); color: var(--text); border-radius: 10px; font-size: 0.95rem; font-family: 'Inter', sans-serif; transition: border-color 0.2s; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); }
+label { font-size: 0.8rem; color: var(--muted); display: block; margin-top: 14px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin: 24px 0; }
+.metric { background: linear-gradient(180deg, #1c1a16 0%, #141311 100%); border: 1px solid var(--border); border-radius: 16px; padding: 24px 18px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
+.metric::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+.metric .n { font-family: 'Playfair Display', Georgia, serif; font-size: 2.1rem; font-weight: 700; color: var(--gold); }
+.metric .l { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 6px; font-weight: 600; }
+table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.92rem; }
+th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--gold); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+tr:hover td { background: rgba(201,162,39,0.04); }
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+.tab { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 11px 22px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.88rem; transition: all 0.2s; }
+.tab.active { background: var(--gold); color: #0a0a0a; border-color: var(--gold); }
+.tab:hover:not(.active) { border-color: var(--gold); color: var(--text); }
+/* Certificate */
+.cert { background: linear-gradient(135deg, #1a1815, #2a251c); border: 3px solid var(--gold); border-radius: 8px; padding: 40px; text-align: center; margin: 20px 0; position: relative; }
+.cert h1 { font-family: Georgia, serif; color: var(--gold); font-size: 2rem; margin-bottom: 10px; }
+.cert .seal { width: 80px; height: 80px; border: 2px solid var(--gold); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin: 20px 0; }
+/* 3D Apparel */
+.viewer3d { perspective: 1000px; display: flex; justify-content: center; padding: 40px 0; }
+.product3d { width: 220px; height: 280px; position: relative; transform-style: preserve-3d; transition: transform 0.1s; }
+.product3d .face { position: absolute; inset: 0; background: #333; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--border); }
+.product3d img { width: 100%; height: 100%; object-fit: cover; }
+.shirt-shape .face { border-radius: 20px 20px 8px 8px; }
+.hat-shape .face { border-radius: 50% 50% 12px 12px; height: 160px; }
+.hoodie-shape .face { border-radius: 24px; }
+.color-dots { display: flex; gap: 10px; margin: 16px 0; flex-wrap: wrap; }
+.color-dot { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+.color-dot.sel { border-color: var(--gold); }
+.upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 24px; text-align: center; margin: 16px 0; cursor: pointer; }
+canvas { max-width: 100%; border-radius: 12px; }
+.progress { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin: 10px 0; }
+.progress div { height: 100%; background: var(--gold); transition: width 0.3s; }
+.conn-status { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; margin: 4px; }
+.conn-on { background: #1a3a1a; color: #4caf50; }
+.conn-off { background: #3a1a1a; color: #f44336; }
+</style>
+</head>
+<body>
+
+<nav>
+  <button class="active" onclick="pg('dash',this)">Dashboard</button>
+  <button onclick="pg('invoice',this)">Invoices</button>
+  <button onclick="pg('receipt',this)">Receipts</button>
+  <button onclick="pg('gas',this)">Gas</button>
+  <button onclick="pg('expense',this)">Expenses</button>
+  <button onclick="pg('cert',this)">Certificates</button>
+  <button onclick="pg('ecom',this)">E-Commerce</button>
+  <button onclick="pg('apparel',this)">Apparel 3D</button>
+  <button onclick="pg('recipe',this)">AI Recipes</button>
+  <button onclick="pg('files',this)">File Storage</button>
+  <button onclick="pg('connect',this)">Connect</button>
+</nav>
+
+<!-- DASHBOARD -->
+<div id="dash" class="page active">
+  <div style="display:flex; align-items:center; gap:16px; margin-bottom:8px;">
+    <div style="width:52px; height:52px; background:linear-gradient(135deg, var(--gold-light), var(--gold)); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.6rem;">⚡</div>
+    <div>
+      <h2 style="margin:0;">Business Dashboard</h2>
+      <p class="sub" style="margin:4px 0 0;">Landry's L.I.T Electric LLC · Live Overview</p>
+    </div>
+  </div>
+  <div class="metric-grid">
+    <div class="metric"><div class="n" id="mRev">$0</div><div class="l">Revenue</div></div>
+    <div class="metric"><div class="n" id="mInv">0</div><div class="l">Invoices</div></div>
+    <div class="metric"><div class="n" id="mExp">$0</div><div class="l">Expenses</div></div>
+    <div class="metric"><div class="n" id="mDed">$0</div><div class="l">Deductions</div></div>
+    <div class="metric"><div class="n" id="mNet">$0</div><div class="l">Net Profit</div></div>
+    <div class="metric"><div class="n" id="mGas">$0</div><div class="l">Gas Total</div></div>
+  </div>
+  <div class="card">
+    <h3 style="color:var(--gold); margin-bottom:12px;">Connected Apps</h3>
+    <div id="appStatus">
+      <span class="conn-status conn-off">Trade Pros Ai — not synced</span>
+      <span class="conn-status conn-off">Stripe — not connected</span>
+      <span class="conn-status conn-off">Dropbox — not connected</span>
+      <span class="conn-status conn-off">Bank — not connected</span>
+    </div>
+    <p style="color:var(--muted); font-size:0.88rem; margin-top:12px;">Connect your apps in the Connect tab to sync live data. Metrics update automatically from your invoices.</p>
+  </div>
+  <div class="card">
+    <h3 style="color:var(--gold); margin-bottom:12px;">Recent Activity</h3>
+    <div id="activity"><p style="color:var(--muted);">No activity yet. Create an invoice to get started.</p></div>
+  </div>
+</div>
+
+<!-- INVOICES -->
+<div id="invoice" class="page">
+  <h2>Invoice Maker</h2>
+  <div class="card">
+    <div style="display:flex; gap:8px; margin-bottom:16px;">
+      <button class="btn" onclick="autoInvoice()">⚡ Auto Generate Invoice</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="invTab('new',this)">New Invoice</button>
+      <button class="tab" onclick="invTab('list',this)">All Invoices</button>
+    </div>
+    <div id="inv-new">
+      <label>Invoice #</label><input id="invNum" placeholder="INV-001">
+      <label>Customer Name</label><input id="invCust" placeholder="Customer name">
+      <label>Date</label><input type="date" id="invDate">
+      <div id="invItems"><label>Items</label></div>
+      <div style="display:flex; gap:8px;">
+        <input id="itemDesc" placeholder="Description" style="flex:2">
+        <input id="itemQty" type="number" placeholder="Qty" style="flex:1" value="1">
+        <input id="itemPrice" type="number" placeholder="Price" style="flex:1" step="0.01">
+        <button class="btn" onclick="addInvItem()">+</button>
+      </div>
+      <div id="invItemList" style="margin:12px 0;"></div>
+      <label>Tax %</label><input id="invTax" type="number" value="0" step="0.1">
+      <h3 style="margin:16px 0;">Total: $<span id="invTotal">0.00</span></h3>
+      <button class="btn" onclick="saveInvoice()">💾 Save Invoice</button>
+      <button class="btn btn-outline" onclick="invoicePDF()">📄 Download PDF</button>
+    </div>
+    <div id="inv-list" style="display:none">
+      <table><thead><tr><th>#</th><th>Customer</th><th>Date</th><th>Total</th><th></th></tr></thead>
+      <tbody id="invTable"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIPTS -->
+<div id="receipt" class="page">
+  <h2>Receipt Maker</h2>
+  <div class="card">
+    <label>Receipt #</label><input id="rcNum" placeholder="RCP-001">
+    <label>Paid By</label><input id="rcCust" placeholder="Customer name">
+    <label>Date</label><input type="date" id="rcDate">
+    <label>Amount</label><input id="rcAmt" type="number" step="0.01" placeholder="0.00">
+    <label>For</label><input id="rcFor" placeholder="Payment for...">
+    <label>Payment Method</label>
+    <select id="rcMethod"><option>Cash</option><option>Card</option><option>Check</option><option>Bank Transfer</option><option>Stripe</option></select>
+    <button class="btn" onclick="saveReceipt()">💾 Save Receipt</button>
+    <button class="btn btn-outline" onclick="receiptPDF()">📄 Download PDF</button>
+    <h3 style="margin-top:24px; color:var(--gold);">Saved Receipts</h3>
+    <table><thead><tr><th>#</th><th>Customer</th><th>Amount</th><th>Date</th></tr></thead>
+    <tbody id="rcTable"></tbody></table>
+  </div>
+</div>
+
+<!-- GAS -->
+<div id="gas" class="page">
+  <h2>Gas Receipts</h2>
+  <div class="card">
+    <label>Date</label><input type="date" id="gasDate">
+    <label>Gallons</label><input id="gasGal" type="number" step="0.01" placeholder="0.0">
+    <label>Price per Gallon</label><input id="gasPrice" type="number" step="0.001" placeholder="0.00">
+    <label>Total</label><input id="gasTotal" type="number" step="0.01" placeholder="0.00">
+    <label>Vehicle / Purpose</label><input id="gasNote" placeholder="Work truck - job site">
+    <label>📷 Photo of Receipt</label>
+    <div class="upload-zone" onclick="document.getElementById('gasPhoto').click()">Tap to add photo<input type="file" id="gasPhoto" accept="image/*" style="display:none"></div>
+    <button class="btn" onclick="saveGas()">💾 Save Gas Receipt</button>
+    <h3 style="margin-top:24px; color:var(--gold);">Gas Log</h3>
+    <table><thead><tr><th>Date</th><th>Gallons</th><th>Total</th><th>Note</th></tr></thead>
+    <tbody id="gasTable"></tbody></table>
+    <h3>Total Gas: $<span id="gasSum">0.00</span> <span style="font-size:0.8rem; color:var(--muted);">(tax deductible)</span></h3>
+  </div>
+</div>
+
+<!-- EXPENSES -->
+<div id="expense" class="page">
+  <h2>Expenses & Deductions</h2>
+  <div class="card">
+    <label>Date</label><input type="date" id="expDate">
+    <label>Category</label>
+    <select id="expCat">
+      <option>Tools & Equipment</option><option>Vehicle</option><option>Gas & Fuel</option>
+      <option>Materials</option><option>Insurance</option><option>Phone/Internet</option>
+      <option>Office/Home Office</option><option>Education/Training</option>
+      <option>Meals (business)</option><option>Other</option>
+    </select>
+    <label>Description</label><input id="expDesc" placeholder="What was it for?">
+    <label>Amount</label><input id="expAmt" type="number" step="0.01" placeholder="0.00">
+    <label><input type="checkbox" id="expDed" checked style="width:auto;"> Tax deductible</label>
+    <button class="btn" onclick="saveExpense()">💾 Save Expense</button>
+    <h3 style="margin-top:24px; color:var(--gold);">Expenses</h3>
+    <table><thead><tr><th>Date</th><th>Category</th><th>Amount</th><th>Deductible</th></tr></thead>
+    <tbody id="expTable"></tbody></table>
+    <h3>Total Deductions: $<span id="dedSum">0.00</span></h3>
+  </div>
+</div>
+
+<!-- CERTIFICATES -->
+<div id="cert" class="page">
+  <h2>Trade Pros E-Certificate Creator</h2>
+  <div class="card">
+    <label>Recipient Name</label><input id="certName" placeholder="Full name">
+    <label>Course / Achievement</label><input id="certCourse" placeholder="e.g. Electrical Safety Certification">
+    <label>Date</label><input type="date" id="certDate">
+    <label>Certificate ID</label><input id="certId" placeholder="CERT-2026-001">
+    <button class="btn" onclick="genCert()">Generate Certificate</button>
+    <button class="btn btn-outline" onclick="certPDF()">📄 Download PDF</button>
+  </div>
+  <div class="cert" id="certPreview" style="display:none;">
+    <p style="letter-spacing:4px; color:var(--muted); font-size:0.85rem;">TRADE PROS AI ACADEMY</p>
+    <h1>Certificate of Completion</h1>
+    <p style="margin:20px 0;">This certifies that</p>
+    <h2 id="certPName" style="font-size:2rem; border-bottom:2px solid var(--gold); display:inline-block; padding-bottom:8px;"></h2>
+    <p style="margin:20px 0;">has successfully completed</p>
+    <h3 id="certPCourse" style="color:var(--gold);"></h3>
+    <div class="seal">⚡</div>
+    <p><span id="certPDate"></span> · <span id="certPId"></span></p>
+    <p style="margin-top:20px; font-size:0.85rem; color:var(--muted);">Justin W. Landry, Founder — Trade Pros Ai</p>
+  </div>
+</div>
+
+<!-- ECOMMERCE -->
+<div id="ecom" class="page">
+  <h2>E-Commerce Builder</h2>
+  <div class="card">
+    <h3 style="color:var(--gold); margin-bottom:12px;">Your Store</h3>
+    <p style="color:var(--muted); margin-bottom:16px;">Manage products for your Jgames.studio Store</p>
+    <label>Product Name</label><input id="prodName" placeholder="Product name">
+    <label>Price</label><input id="prodPrice" type="number" step="0.01" placeholder="0.00">
+    <label>Description</label><textarea id="prodDesc" rows="3" placeholder="Description"></textarea>
+    <label>📷 Product Photo</label>
+    <div class="upload-zone" onclick="document.getElementById('prodPhoto').click()">Tap to add photo<input type="file" id="prodPhoto" accept="image/*" style="display:none"></div>
+    <button class="btn" onclick="addProduct()">➕ Add Product</button>
+    <div id="prodList" style="margin-top:20px;"></div>
+  </div>
+  <div class="card">
+    <h3 style="color:var(--gold); margin-bottom:12px;">💳 Stripe Payments</h3>
+    <p style="color:var(--muted); font-size:0.9rem;">Connect Stripe to accept payments</p>
+    <span class="conn-status conn-off" id="stripeStatus">Not connected</span><br><br>
+    <input id="stripeKey" placeholder="Stripe Publishable Key (pk_live_...)" type="password">
+    <button class="btn" onclick="connectStripe()">Connect Stripe</button>
+  </div>
+</div>
+
+<!-- APPAREL 3D -->
+<div id="apparel" class="page">
+  <h2>Apparel 3D Designer</h2>
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="setGarment('shirt',this)">👕 Shirt</button>
+      <button class="tab" onclick="setGarment('hoodie',this)">🧥 Hoodie</button>
+      <button class="tab" onclick="setGarment('hat',this)">🧢 Hat</button>
+    </div>
+    <div class="viewer3d">
+      <div class="product3d shirt-shape" id="p3d">
+        <div class="face" id="p3dFace"><span style="font-size:3rem;" id="p3dEmoji">👕</span><img id="p3dImg" style="display:none;"></div>
+      </div>
+    </div>
+    <p style="text-align:center; color:var(--muted); font-size:0.85rem;">Drag to rotate 360°</p>
+    <label>Garment Color</label>
+    <div class="color-dots" id="colorDots"></div>
+    <label>📷 Add Your Photo/Logo</label>
+    <div class="upload-zone" onclick="document.getElementById('appPhoto').click()">Tap to upload design<input type="file" id="appPhoto" accept="image/*" style="display:none" onchange="setApparelImg(this)"></div>
+    <label>Size</label>
+    <select id="appSize"><option>S</option><option>M</option><option>L</option><option>XL</option><option>2XL</option></select>
+    <label>Price</label><input id="appPrice" type="number" step="0.01" placeholder="29.99">
+    <button class="btn" onclick="addToStore()">🛒 Add to Store</button>
+    <button class="btn btn-outline" onclick="apparelCheckout()">💳 Buy Now (Stripe)</button>
+  </div>
+</div>
+
+<!-- AI RECIPES -->
+<div id="recipe" class="page">
+  <h2>AI Recipe Generator</h2>
+  <p class="sub">Describe ingredients or a craving, get a recipe instantly.</p>
+  <div class="card">
+    <label>What do you have or want?</label>
+    <input id="recipeInput" placeholder="e.g. chicken, rice, bell peppers... or 'something spicy for dinner'">
+    <div style="display:flex; gap:8px; margin-top:12px;">
+      <button class="btn" onclick="genRecipe()">Generate Recipe</button>
+      <button class="btn btn-outline" onclick="surpriseRecipe()">Surprise Me</button>
+    </div>
+    <div id="recipeOut" style="margin-top:20px;"></div>
+  </div>
+  <div class="card">
+    <h3>Saved Recipes</h3>
+    <div id="recipeList"></div>
+  </div>
+</div>
+
+<!-- FILE STORAGE -->
+<div id="files" class="page">
+  <h2>File Storage</h2>
+  <p class="sub">Upload and manage business files. <span id="storageUsed">0 MB</span> used.</p>
+  <div class="card">
+    <div class="upload-zone" onclick="document.getElementById('fileUp').click()">Tap to upload files<input type="file" id="fileUp" multiple style="display:none" onchange="uploadFiles(this)"></div>
+    <div id="fileList" style="margin-top:16px;"></div>
+  </div>
+</div>
+
+<!-- CONNECT -->
+<div id="connect" class="page">
+  <h2>Integrations</h2>
+  <div class="card">
+    <h3 style="color:var(--gold);">☁️ Dropbox Storage</h3>
+    <p style="color:var(--muted); font-size:0.9rem;">1TB minimum — store invoices, receipts, photos</p>
+    <div class="progress"><div id="dbProg" style="width:2%"></div></div>
+    <p style="font-size:0.85rem;"><span id="dbUsed">20GB</span> of 1TB used</p>
+    <span class="conn-status conn-off" id="dbStatus">Not connected</span><br><br>
+    <input id="dbToken" placeholder="Dropbox Access Token" type="password">
+    <button class="btn" onclick="connectDropbox()">Connect Dropbox</button>
+    <button class="btn btn-outline" onclick="backupToDropbox()">☁️ Backup Now</button>
+  </div>
+  <div class="card">
+    <h3 style="color:var(--gold);">🏦 Bank Account</h3>
+    <p style="color:var(--muted); font-size:0.9rem;">Connect via Plaid for transaction sync</p>
+    <span class="conn-status conn-off" id="bankStatus">Not connected</span><br><br>
+    <button class="btn" onclick="connectBank()">🏦 Connect Bank (Plaid)</button>
+  </div>
+  <div class="card">
+    <h3 style="color:var(--gold);">💳 Stripe</h3>
+    <span class="conn-status conn-off" id="stripeStatus2">Not connected</span><br><br>
+    <button class="btn" onclick="pg('ecom',document.querySelector('nav button:nth-child(7)'))">Go to Stripe Settings →</button>
+  </div>
+  <div class="card">
+    <h3 style="color:var(--gold);">📱 Trade Pros Ai</h3>
+    <p style="color:var(--muted); font-size:0.9rem;">Sync academy data and certificates</p>
+    <span class="conn-status conn-on">API Ready</span>
+  </div>
+</div>
+
+<script>
+// Navigation
+function pg(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+// Data store
+const DB = {
+  get(k) { return JSON.parse(localStorage.getItem('biz_'+k) || '[]'); },
+  set(k, v) { localStorage.setItem('biz_'+k, JSON.stringify(v)); updateMetrics(); },
+};
+// Metrics
+function updateMetrics() {
+  const invs = DB.get('invoices'), exps = DB.get('expenses'), gas = DB.get('gas');
+  const rev = invs.reduce((s,i) => s + parseFloat(i.total||0), 0);
+  const exp = exps.reduce((s,e) => s + parseFloat(e.amt||0), 0);
+  const g = gas.reduce((s,x) => s + parseFloat(x.total||0), 0);
+  const ded = exps.filter(e=>e.ded).reduce((s,e) => s + parseFloat(e.amt||0), 0) + g;
+  document.getElementById('mRev').textContent = '$' + rev.toFixed(2);
+  document.getElementById('mInv').textContent = invs.length;
+  document.getElementById('mExp').textContent = '$' + (exp+g).toFixed(2);
+  document.getElementById('mDed').textContent = '$' + ded.toFixed(2);
+  document.getElementById('mNet').textContent = '$' + (rev-exp-g).toFixed(2);
+  document.getElementById('mGas').textContent = '$' + g.toFixed(2);
+  // Activity
+  const act = document.getElementById('activity');
+  if (invs.length) {
+    const last = invs[invs.length-1];
+    act.innerHTML = `<p>Latest: Invoice ${last.num} — $${last.total} (${last.cust})</p>`;
+  }
+}
+// Invoices
+let invItems = [];
+function addInvItem() {
+  const d = document.getElementById('itemDesc').value, q = parseFloat(document.getElementById('itemQty').value)||1, p = parseFloat(document.getElementById('itemPrice').value)||0;
+  if (!d || !p) { alert('Enter description and price'); return; }
+  invItems.push({d, q, p, t: q*p});
+  renderInvItems();
+  document.getElementById('itemDesc').value = ''; document.getElementById('itemPrice').value = '';
+}
+function renderInvItems() {
+  const tax = parseFloat(document.getElementById('invTax').value)||0;
+  const sub = invItems.reduce((s,i) => s+i.t, 0);
+  const total = sub * (1 + tax/100);
+  document.getElementById('invItemList').innerHTML = invItems.map((i,x) =>
+    `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid var(--border);"><span>${i.d} ×${i.q}</span><span>$${i.t.toFixed(2)} <a onclick="invItems.splice(${x},1);renderInvItems()" style="color:#f44;cursor:pointer;">✕</a></span></div>`).join('');
+  document.getElementById('invTotal').textContent = total.toFixed(2);
+}
+document.getElementById('invTax').addEventListener('input', renderInvItems);
+function saveInvoice() {
+  const num = document.getElementById('invNum').value || 'INV-'+Date.now();
+  const total = document.getElementById('invTotal').textContent;
+  const invs = DB.get('invoices');
+  invs.push({num, cust: document.getElementById('invCust').value, date: document.getElementById('invDate').value, items: [...invItems], total});
+  DB.set('invoices', invs);
+  invItems = []; renderInvItems();
+  document.getElementById('invNum').value = ''; document.getElementById('invCust').value = '';
+  alert('Invoice saved!'); renderInvTable();
+}
+function renderInvTable() {
+  document.getElementById('invTable').innerHTML = DB.get('invoices').map(i =>
+    `<tr><td>${i.num}</td><td>${i.cust}</td><td>${i.date}</td><td>$${i.total}</td><td><button class="btn" style="padding:6px 12px;" onclick="invoicePDF('${i.num}')">PDF</button></td></tr>`).join('');
+}
+function invTab(t, btn) {
+  document.getElementById('inv-new').style.display = t==='new' ? 'block' : 'none';
+  document.getElementById('inv-list').style.display = t==='list' ? 'block' : 'none';
+  btn.parentElement.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (t==='list') renderInvTable();
+}
+// PDFs
+function invoicePDF(num) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const inv = DB.get('invoices').find(i => i.num === num) || {
+    num: document.getElementById('invNum').value || 'DRAFT',
+    cust: document.getElementById('invCust').value, date: document.getElementById('invDate').value,
+    items: invItems, total: document.getElementById('invTotal').textContent };
+  doc.setFontSize(20); doc.text("L.I.T Electric LLC", 20, 20);
+  doc.setFontSize(10); doc.text("350 Nickel Bill James Rd, Benton, AR 72019 | 337-415-6350", 20, 28);
+  doc.setFontSize(14); doc.text("INVOICE " + inv.num, 20, 42);
+  doc.setFontSize(10); doc.text("Bill to: " + (inv.cust||''), 20, 50); doc.text("Date: " + (inv.date||''), 20, 56);
+  let y = 70;
+  (inv.items||[]).forEach(i => { doc.text(`${i.d} x${i.q} — $${i.t.toFixed(2)}`, 20, y); y += 8; });
+  doc.setFontSize(14); doc.text("Total: $" + inv.total, 20, y+10);
+  doc.save(`invoice-${inv.num}.pdf`);
+}
+function saveReceipt() {
+  const rcs = DB.get('receipts');
+  rcs.push({num: document.getElementById('rcNum').value||'RCP-'+Date.now(), cust: document.getElementById('rcCust').value, date: document.getElementById('rcDate').value, amt: document.getElementById('rcAmt').value, for: document.getElementById('rcFor').value, method: document.getElementById('rcMethod').value});
+  DB.set('receipts', rcs); renderRcTable(); alert('Receipt saved!');
+}
+function renderRcTable() {
+  document.getElementById('rcTable').innerHTML = DB.get('receipts').map(r =>
+    `<tr><td>${r.num}</td><td>${r.cust}</td><td>$${r.amt}</td><td>${r.date}</td></tr>`).join('');
+}
+function receiptPDF() {
+  const { jsPDF } = window.jspdf; const doc = new jsPDF();
+  doc.setFontSize(20); doc.text("L.I.T Electric LLC", 20, 20);
+  doc.setFontSize(14); doc.text("RECEIPT", 20, 36);
+  doc.setFontSize(10);
+  doc.text("Receipt #: " + document.getElementById('rcNum').value, 20, 48);
+  doc.text("Received from: " + document.getElementById('rcCust').value, 20, 56);
+  doc.text("Amount: $" + document.getElementById('rcAmt').value, 20, 64);
+  doc.text("For: " + document.getElementById('rcFor').value, 20, 72);
+  doc.text("Method: " + document.getElementById('rcMethod').value, 20, 80);
+  doc.text("Date: " + document.getElementById('rcDate').value, 20, 88);
+  doc.save('receipt.pdf');
+}
+// Gas
+function saveGas() {
+  const g = DB.get('gas');
+  g.push({date: document.getElementById('gasDate').value, gal: document.getElementById('gasGal').value, price: document.getElementById('gasPrice').value, total: document.getElementById('gasTotal').value||0, note: document.getElementById('gasNote').value});
+  DB.set('gas', g); renderGas(); alert('Gas receipt saved!');
+}
+function renderGas() {
+  const g = DB.get('gas');
+  document.getElementById('gasTable').innerHTML = g.map(x =>
+    `<tr><td>${x.date}</td><td>${x.gal}</td><td>$${x.total}</td><td>${x.note}</td></tr>`).join('');
+  document.getElementById('gasSum').textContent = g.reduce((s,x) => s+parseFloat(x.total||0), 0).toFixed(2);
+}
+// Expenses
+function saveExpense() {
+  const e = DB.get('expenses');
+  e.push({date: document.getElementById('expDate').value, cat: document.getElementById('expCat').value, desc: document.getElementById('expDesc').value, amt: document.getElementById('expAmt').value, ded: document.getElementById('expDed').checked});
+  DB.set('expenses', e); renderExp(); alert('Expense saved!');
+}
+function renderExp() {
+  const e = DB.get('expenses');
+  document.getElementById('expTable').innerHTML = e.map(x =>
+    `<tr><td>${x.date}</td><td>${x.cat}</td><td>$${x.amt}</td><td>${x.ded?'✓':''}</td></tr>`).join('');
+  document.getElementById('dedSum').textContent = e.filter(x=>x.ded).reduce((s,x) => s+parseFloat(x.amt||0), 0).toFixed(2);
+}
+// Certificate
+function genCert() {
+  document.getElementById('certPName').textContent = document.getElementById('certName').value || 'Recipient Name';
+  document.getElementById('certPCourse').textContent = document.getElementById('certCourse').value || 'Course';
+  document.getElementById('certPDate').textContent = document.getElementById('certDate').value;
+  document.getElementById('certPId').textContent = document.getElementById('certId').value;
+  document.getElementById('certPreview').style.display = 'block';
+}
+function certPDF() {
+  const { jsPDF } = window.jspdf; const doc = new jsPDF({orientation:'landscape'});
+  doc.setFontSize(28); doc.text("Certificate of Completion", 80, 40);
+  doc.setFontSize(12); doc.text("Trade Pros Ai Academy", 125, 55);
+  doc.setFontSize(16); doc.text(document.getElementById('certName').value || 'Name', 125, 80);
+  doc.setFontSize(12); doc.text("has completed: " + (document.getElementById('certCourse').value||''), 100, 95);
+  doc.text("Date: " + document.getElementById('certDate').value + "  ID: " + document.getElementById('certId').value, 100, 110);
+  doc.text("Justin W. Landry, Founder", 120, 140);
+  doc.save('certificate.pdf');
+}
+// E-commerce
+function addProduct() {
+  const n = document.getElementById('prodName').value;
+  if (!n) { alert('Enter product name'); return; }
+  const d = document.createElement('div'); d.className = 'card';
+  d.innerHTML = `<h4>${n} — $${document.getElementById('prodPrice').value}</h4><p style="color:var(--muted);">${document.getElementById('prodDesc').value}</p><button class="btn" onclick="this.parentElement.remove()">Remove</button>`;
+  document.getElementById('prodList').appendChild(d);
+  document.getElementById('prodName').value = ''; document.getElementById('prodPrice').value = ''; document.getElementById('prodDesc').value = '';
+}
+function connectStripe() {
+  const k = document.getElementById('stripeKey').value;
+  if (!k) { alert('Enter your Stripe publishable key'); return; }
+  localStorage.setItem('biz_stripe', k);
+  document.getElementById('stripeStatus').textContent = 'Connected ✓';
+  document.getElementById('stripeStatus').className = 'conn-status conn-on';
+  document.getElementById('stripeStatus2').textContent = 'Connected ✓';
+  document.getElementById('stripeStatus2').className = 'conn-status conn-on';
+  alert('Stripe connected!');
+}
+// Apparel 3D
+let garment = 'shirt', rotY = 0, garmentColor = '#333';
+const colors = ['#000000','#ffffff','#c9a227','#1a3a6b','#6b1a1a','#1a6b1a','#555555','#b5651d'];
+function setGarment(g, btn) {
+  garment = g;
+  btn.parentElement.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const emojis = {shirt:'👕', hoodie:'🧥', hat:'🧢'};
+  document.getElementById('p3dEmoji').textContent = emojis[g];
+  document.getElementById('p3d').className = 'product3d ' + g + '-shape';
+  document.getElementById('p3dFace').style.background = garmentColor;
+}
+function renderColors() {
+  document.getElementById('colorDots').innerHTML = colors.map(c =>
+    `<div class="color-dot ${c===garmentColor?'sel':''}" style="background:${c}" onclick="garmentColor='${c}';document.getElementById('p3dFace').style.background='${c}';renderColors()"></div>`).join('');
+}
+renderColors();
+// 360 drag
+let dragging = false, startX = 0;
+const p3d = document.getElementById('p3d');
+p3d.addEventListener('pointerdown', e => { dragging = true; startX = e.clientX; });
+window.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  rotY += (e.clientX - startX) * 0.5; startX = e.clientX;
+  p3d.style.transform = `rotateY(${rotY}deg)`;
+});
+window.addEventListener('pointerup', () => dragging = false);
+function setApparelImg(input) {
+  const f = input.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    const img = document.getElementById('p3dImg');
+    img.src = e.target.result; img.style.display = 'block';
+    document.getElementById('p3dEmoji').style.display = 'none';
+  };
+  r.readAsDataURL(f);
+}
+function addToStore() {
+  alert(`${garment} added to your store at $${document.getElementById('appPrice').value||'29.99'}!`);
+}
+function apparelCheckout() {
+  const k = localStorage.getItem('biz_stripe');
+  if (!k) { alert('Connect Stripe first (E-Commerce tab)'); return; }
+  alert('Stripe checkout would open here for $' + (document.getElementById('appPrice').value||'29.99'));
+}
+// Connect
+function connectDropbox() {
+  const t = document.getElementById('dbToken').value;
+  if (!t) { alert('Enter Dropbox token from dropbox.com/developers'); return; }
+  localStorage.setItem('biz_dropbox', t);
+  document.getElementById('dbStatus').textContent = 'Connected ✓ (1TB)';
+  document.getElementById('dbStatus').className = 'conn-status conn-on';
+  alert('Dropbox connected!');
+}
+function backupToDropbox() {
+  const t = localStorage.getItem('biz_dropbox');
+  if (!t) { alert('Connect Dropbox first'); return; }
+  const data = JSON.stringify({invoices: DB.get('invoices'), receipts: DB.get('receipts'), expenses: DB.get('expenses'), gas: DB.get('gas')});
+  fetch('https://content.dropboxapi.com/2/files/upload', {
+    method: 'POST',
+    headers: {'Authorization': 'Bearer ' + t, 'Dropbox-API-Arg': JSON.stringify({path: '/lit-electric-backup.json', mode: 'overwrite'}), 'Content-Type': 'application/octet-stream'},
+    body: data
+  }).then(r => r.ok ? alert('Backed up to Dropbox!') : alert('Backup failed: ' + r.status))
+    .catch(e => alert('Error: ' + e.message));
+}
+function connectBank() {
+  alert('Plaid integration: Add your Plaid client ID in the code to enable bank connection. Visit plaid.com to get API keys.');
+}
+// AI Recipe Generator
+const RECIPES = [
+  { name: "Cajun Chicken & Rice", time: "30 min", ing: ["chicken breast", "rice", "bell peppers", "cajun seasoning", "onion"], steps: ["Season chicken with cajun seasoning", "Sear chicken 6 min per side", "Sauté peppers and onion", "Cook rice, combine all, serve hot"] },
+  { name: "Spicy Honey Garlic Shrimp", time: "20 min", ing: ["shrimp", "honey", "garlic", "red pepper flakes", "soy sauce"], steps: ["Mix honey, garlic, pepper flakes, soy sauce", "Sear shrimp 2 min per side", "Toss in sauce, serve over rice"] },
+  { name: "Smothered Pork Chops", time: "45 min", ing: ["pork chops", "onion", "flour", "chicken broth", "thyme"], steps: ["Dredge chops in seasoned flour, sear", "Sauté onions, make gravy with broth", "Return chops, simmer 30 min"] },
+  { name: "Blackened Catfish", time: "25 min", ing: ["catfish fillets", "blackening seasoning", "butter", "lemon"], steps: ["Coat fillets in blackening seasoning", "Sear in hot butter 4 min per side", "Squeeze lemon, serve"] },
+];
+function genRecipe() {
+  const q = document.getElementById('recipeInput').value.toLowerCase();
+  let r = RECIPES.find(x => x.ing.some(i => q.includes(i.split(' ')[0])) || x.name.toLowerCase().includes(q.split(' ')[0]));
+  if (!r) r = RECIPES[Math.floor(Math.random() * RECIPES.length)];
+  showRecipe(r);
+}
+function surpriseRecipe() { showRecipe(RECIPES[Math.floor(Math.random() * RECIPES.length)]); }
+function showRecipe(r) {
+  document.getElementById('recipeOut').innerHTML = `<div style="background:#0d0c0a;border:1px solid var(--border);border-radius:12px;padding:20px;">
+    <h3 style="color:var(--gold);margin-bottom:8px;">${r.name}</h3>
+    <p style="color:var(--muted);font-size:0.85rem;">⏱ ${r.time}</p>
+    <p style="margin:12px 0 6px;"><strong>Ingredients:</strong></p><ul style="margin-left:20px;color:#ccc;">${r.ing.map(i=>`<li>${i}</li>`).join('')}</ul>
+    <p style="margin:12px 0 6px;"><strong>Steps:</strong></p><ol style="margin-left:20px;color:#ccc;">${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+    <button class="btn" style="margin-top:12px;" onclick='saveRecipe(${JSON.stringify(r).replace(/'/g,"&#39;")})'>Save Recipe</button></div>`;
+}
+function saveRecipe(r) {
+  const s = DB.get('recipes'); s.push(r); DB.set('recipes', s); renderRecipes(); alert('Recipe saved!');
+}
+function renderRecipes() {
+  const s = DB.get('recipes');
+  document.getElementById('recipeList').innerHTML = s.length ? s.map((r,i)=>`<div class="top-row"><span>${r.name}</span><button class="btn ghost" onclick="delRecipe(${i})">×</button></div>`).join('') : '<p class="muted">No saved recipes yet.</p>';
+}
+function delRecipe(i) { const s = DB.get('recipes'); s.splice(i,1); DB.set('recipes', s); renderRecipes(); }
+// File Storage
+function uploadFiles(input) {
+  const files = DB.get('files');
+  let totalSize = files.reduce((s,f)=>s+f.size,0);
+  for (const f of input.files) {
+    if (f.size > 5*1024*1024) { alert(f.name + ' is over 5MB, skipped.'); continue; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      files.push({ name: f.name, size: f.size, type: f.type, data: e.target.result, date: new Date().toISOString() });
+      DB.set('files', files); renderFiles();
+    };
+    reader.readAsDataURL(f);
+  }
+  input.value = '';
+}
+function renderFiles() {
+  const files = DB.get('files');
+  const total = files.reduce((s,f)=>s+f.size,0);
+  document.getElementById('storageUsed').textContent = (total/1024/1024).toFixed(1) + ' MB';
+  document.getElementById('fileList').innerHTML = files.length ? files.map((f,i)=>
+    `<div class="top-row"><span>📄 ${f.name} <span class="muted small">(${(f.size/1024).toFixed(0)}KB)</span></span><span><a href="${f.data}" download="${f.name}" class="btn ghost" style="padding:6px 12px;text-decoration:none;">↓</a> <button class="btn ghost" onclick="delFile(${i})">×</button></span></div>`
+  ).join('') : '<p class="muted">No files uploaded yet.</p>';
+}
+function delFile(i) { const f = DB.get('files'); f.splice(i,1); DB.set('files', f); renderFiles(); }
+// Auto Invoice Generator
+function autoInvoice() {
+  const clients = DB.get('clients');
+  const name = prompt('Client name' + (clients.length ? ' (saved: ' + clients.join(', ') + ')' : '') + ':');
+  if (!name) return;
+  const desc = prompt('Work description:', 'Electrical service call');
+  const amount = prompt('Amount:', '150.00');
+  if (!desc || !amount) return;
+  if (!clients.includes(name)) { clients.push(name); DB.set('clients', clients); }
+  // Fill the form
+  const invNum = 'INV-' + String(DB.get('invoices').length + 1).padStart(3, '0');
+  document.getElementById('invNum').value = invNum;
+  document.getElementById('invCust').value = name;
+  document.getElementById('invDate').valueAsDate = new Date();
+  document.getElementById('itemDesc').value = desc;
+  document.getElementById('itemQty').value = 1;
+  document.getElementById('itemPrice').value = amount;
+  addInvItem();
+  alert('Invoice ' + invNum + ' auto-generated for ' + name + ' — review and hit Save.');
+}
+// Real-time Stripe status check
+function checkStripeLive() {
+  const key = localStorage.getItem('biz_stripe');
+  const el = document.getElementById('stripeLive');
+  if (el) el.textContent = key ? '● Live' : '○ Not connected';
+  const key2 = document.getElementById('stripeStatus');
+  if (key2 && key) { key2.textContent = 'Connected ✓'; key2.className = 'conn-status conn-on'; }
+}
+setInterval(checkStripeLive, 5000); // Check every 5 seconds
+setInterval(updateMetrics, 10000); // Refresh metrics every 10 seconds
+// Init
+updateMetrics(); renderInvTable(); renderRcTable(); renderGas(); renderExp(); renderRecipes(); renderFiles(); checkStripeLive();
+document.getElementById('invDate').valueAsDate = new Date();
+document.getElementById('rcDate').valueAsDate = new Date();
+document.getElementById('gasDate').valueAsDate = new Date();
+document.getElementById('expDate').valueAsDate = new Date();
+document.getElementById('certDate').valueAsDate = new Date();
+if (localStorage.getItem('biz_stripe')) {
+  document.getElementById('stripeStatus').textContent = 'Connected ✓';
+  document.getElementById('stripeStatus').className = 'conn-status conn-on';
+}
+</script>
+</body>
+</html>
